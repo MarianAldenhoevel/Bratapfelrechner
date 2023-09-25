@@ -17,7 +17,7 @@
     
     <div id="main" class="container">
       <!-- An dieser Stelle werden zur Laufzeit die Produkte eingebaut. -->
-      <div class="row" id="totals">
+      <div class="row flex-nowrap" id="totals">
           <div class="col it-buttons-left">&nbsp;</div>
           <div class="col-6 it-name">&nbsp;</div>
           <div class="col it-quantity">&nbsp;</div>
@@ -103,7 +103,7 @@
       for(item of model.items) {
         // console.log(item);
         itemrow = $(
-            '<div class="row item">' + 
+            '<div class="row flex-nowrap item">' + 
             ' <div class="col it-buttons-left">' + 
             '   <button type="button" class="btn btn-secondary btn-lg btn-decrease">' + 
             '     <i class="bi bi-bag-dash"></i>' + 
