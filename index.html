@@ -15,7 +15,7 @@
   </head>
   <body>
     
-    <div id="main" class="container">
+    <div id="main" class="container-fluid">
       <!-- An dieser Stelle werden zur Laufzeit die Produkte eingebaut. -->
       <div class="row flex-nowrap" id="totals">
           <div class="col it-buttons-left">&nbsp;</div>
@@ -23,7 +23,7 @@
           <div class="col it-quantity">&nbsp;</div>
           <div class="col it-price">&nbsp;</div>
           <div class="col it-buttons-right">
-            <button id="btnClearall" type="button" class="btn btn-secondary btn-lg"><i class="bi bi-bag-x"></i></button>
+            <button id="btnClearall" type="button" class="btn btn-secondary btn"><i class="bi bi-bag-x"></i></button>
           </div>
         </div>       
     </div>
@@ -105,7 +105,7 @@
         itemrow = $(
             '<div class="row flex-nowrap item">' + 
             ' <div class="col it-buttons-left">' + 
-            '   <button type="button" class="btn btn-secondary btn-lg btn-decrease">' + 
+            '   <button type="button" class="btn btn-secondary btn btn-decrease">' + 
             '     <i class="bi bi-bag-dash"></i>' + 
             '   </button>' + 
             ' </div>' + 
@@ -115,7 +115,7 @@
             ' </div>' + 
             ' <div class="col it-price">' + toEUR(item.price) + '</div>' + 
             ' <div class="col it-buttons-right">' + 
-            '   <button type="button" class="btn btn-secondary btn-lg btn-increase">' + 
+            '   <button type="button" class="btn btn-secondary btn btn-increase">' + 
             '     <i class="bi bi-bag-plus"></i>' + 
             '   </button>' + 
             ' </div>' + 
