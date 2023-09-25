@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Der Bratapfel</title>
+
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <link href="main.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div id="main" class="container">
+      <!-- An dieser Stelle werden zur Laufzeit die Produkte eingebaut. -->
+      <div class="row" id="totals">
+          <div class="col it-buttons-left">&nbsp;</div>
+          <div class="col-6 it-name">&nbsp;</div>
+          <div class="col it-quantity">&nbsp;</div>
+          <div class="col it-price">&nbsp;</div>
+          <div class="col it-buttons-right">
+            <button id="btnClearall" type="button" class="btn btn-secondary btn-lg"><i class="bi bi-bag-x"></i></button>
+          </div>
+        </div>       
+    </div>
+      
+  </body>
+
+  <script>
+    // Konfiguration der Produkte.
+    var model = {
+      items: [
+         // Eindeutige ID         // Menschenlesbarer Name    // Einzelpreis  // Menge (initial und dann aktualisiert)
+        {id: "zapfel",            name: "Zapfel",             price: 3.2,     quantity: 0},
+        {id: "punsch",            name: "Punsch",             price: 3.2,     quantity: 0},
+        {id: "becherpfand",       name: "Becherpfand",        price: 5.0,     quantity: 0},
+        {id: "pfandruecknahme",   name: "Becherpfand zurück", price: -5.0,    quantity: 0}
+      ],
+      total: 0.0
+    }
+
+    // Liefert zu einer ID das Item-Objekt aus dem Modell. Ground-truth.
+    function getitem(itemid) {
+      for(item of model.items) {
+        if (item.id == itemid) {
+          return item;
+        }
+      }
+    }
+
+    // Formatiert etwas als EUR-Betrag.
+    function toEUR(amount) {
+      return amount.toFixed(2) + "€";
+    }
+
+    // Gesamtsumme neu berechnen und Anzeige aktualisieren.
+    function updatetotals() {
+      // console.log("updatetotals");
+
+      model.total = 0
+      for(item of model.items) {
+        model.total += item.price * item.quantity;
+      }
+
+      // console.log("updatetotals() - " + model.total)
+      $("#totals .it-price").removeClass("negative");
+      if (model.total) {
+        $("#totals .it-price").text(toEUR(model.total));
+
+        if (model.total < 0) {
+          $("#totals .it-price").addClass("negative");
+        }
+
+      } else {
+        $("#totals .it-price").text("");
+      }
+    }
+
+    // Neue Menge des gegebenen Produkts in der Zeile anzeigen.
+    function updateitemrow(itemrow) {
+      item = getitem(itemrow.data().id);
+      // console.log("updateitemrow('" + item.name + "')");
+
+      if (item.quantity) {
+        itemrow.find("input").val(item.quantity);
+      } else {
+        itemrow.find("input").val("");
+      }
+
+      updatetotals();
+    }
+
+    // JQuery handler for document ready. Set up.
+    $(document).ready(function() {
+	    console.log("ready()");
+
+      // Für jedes konfigurierte Produkt eine Zeile anlegen.
+      $(".item").remove();
+      for(item of model.items) {
+        // console.log(item);
+        itemrow = $(
+            '<div class="row item">' + 
+            ' <div class="col it-buttons-left">' + 
+            '   <button type="button" class="btn btn-secondary btn-lg btn-decrease">' + 
+            '     <i class="bi bi-bag-dash"></i>' + 
+            '   </button>' + 
+            ' </div>' + 
+            ' <div class="col-6 it-name">' + item.name + '</div>' + 
+            ' <div class="col it-quantity">' + 
+            '   <input type="number" min="0" value="' + (item.quantity ? item.quantity : "") + '"></input>' + 
+            ' </div>' + 
+            ' <div class="col it-price">' + toEUR(item.price) + '</div>' + 
+            ' <div class="col it-buttons-right">' + 
+            '   <button type="button" class="btn btn-secondary btn-lg btn-increase">' + 
+            '     <i class="bi bi-bag-plus"></i>' + 
+            '   </button>' + 
+            ' </div>' + 
+            '</div>');
+        $("#totals").before(itemrow);
+        if (item.price < 0) {
+          itemrow.find(".it-price").addClass("negative");
+        }     
+
+        // Zeile mit dem Produkt verknüpfen über jQuery data-Eigenschaft. Achtung! Das macht eine Kopie, deswegen
+        // beim Zugriff da immer die ID rausziehen und in model.items nachsehen.
+        itemrow.data(item);
+      }
+
+      // Verringern-Buttons verdrahten. Das Ereignis auf der ganzen Zelle empfangen und nicht nur auf dem Button,
+      // Weihnachtsmarkt, dicke Finger.
+      $(".it-buttons-left").click(function(ev) {
+        itemrow = $(this).parents(".item"); 
+        item = getitem(itemrow.data().id);
+        // console.log("decrease '" + item.name + "' click");
+
+        item.quantity -= 1;
+        if (item.quantity < 0) {
+          item.quantity = 0;
+        }
+
+        updateitemrow(itemrow);
+      });
+
+      // Erhöhen-Buttons verdrahten. 
+      $(".it-buttons-right").click(function(ev) {
+        itemrow = $(this).parents(".item"); 
+        item = getitem(itemrow.data().id);
+        // console.log("increase '" + item.name + "' click");
+
+        item.quantity += 1;
+
+        updateitemrow(itemrow);
+      })        
+
+      // Löschbutton verdrahten. Er wurde als Beifang schon zum Erhöhen verkabelt, den Handler vorher entfernen.
+      $("#totals .it-buttons-right").off("click");
+      $("#totals .it-buttons-right").click(function(ev) {
+        // console.log("Clear All click");
+
+        $(".item").each(function() { 
+          item = getitem($(this).data().id);
+          item.quantity = 0;
+          updateitemrow($(this));
+        });
+      })
+
+      // Direkteingabe in ein Eingabefeld.
+      $(".it-quantity input").on("keypress", function(ev) {
+        if (ev.which == 13) {
+          $(this).trigger("blur"); // see below.
+        }
+      })
+
+      $(".it-quantity input").on("blur", function(ev) {  
+        itemrow = $(this).parents(".item"); 
+        item = getitem(itemrow.data().id);
+        
+        item.quantity = Number($(this).val());
+        if (item.quantity < 0) {
+          item.quantity = 0;
+        }
+
+        updateitemrow(itemrow);
+      });
+    });
+</script>
+
+</html>
